@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SMS Shield AI - 97.04%</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Space Grotesk',sans-serif}
+body{background:#070a14;color:#e2e8f0}
+.nav{display:flex;justify-content:space-between;padding:16px 28px;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1)}
+.logo{font-weight:700;font-size:22px;background:linear-gradient(90deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{background:rgba(99,102,241,.15);border:1px solid #6366f1;padding:6px 14px;border-radius:20px;font-size:12px;color:#a5b4fc}
+.hero{padding:28px}.hero h1{font-size:40px}.hero h1 span{background:linear-gradient(90deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 28px}
+.stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;text-align:center}
+.stat h2{font-size:28px}
+.main{display:grid;grid-template-columns:1.4fr .8fr;gap:16px;padding:18px 28px}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px}
+.input{display:flex;gap:8px;margin-top:14px;background:rgba(0,0,0,.4);padding:6px;border-radius:12px;border:1px solid rgba(255,255,255,.1)}
+.input textarea{flex:1;background:transparent;border:none;outline:none;color:#fff;padding:10px;resize:none}
+.btn{background:linear-gradient(90deg,#6366f1,#8b5cf6);border:none;color:#fff;padding:10px 20px;border-radius:10px;font-weight:700;cursor:pointer}
+.result{display:none;margin-top:12px;padding:12px;border-radius:10px;text-align:center;font-weight:700}
+.result.spam{display:block;background:rgba(244,63,94,.15);border:1px solid #f43f5e;color:#fb7185}
+.result.ham{display:block;background:rgba(34,197,94,.15);border:1px solid #22c55e;color:#4ade80}
+@media(max-width:900px){.stats{grid-template-columns:1fr 1fr}.main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="nav"><div class="logo">🛡️ SMS Shield AI</div><div class="badge">🟢 97.04% Accuracy Live</div></div>
+<div class="hero"><h1>Real-time SMS <span>Spam Detector</span></h1><p style="color:#94a3b8">TF-IDF + MultinomialNB | 5572 Messages | 97.04% Model</p></div>
+<div class="stats">
+<div class="stat"><small>ACCURACY</small><h2 style="color:#4ade80">97.04%</h2></div>
+<div class="stat"><small>TOTAL SMS</small><h2 style="color:#60a5fa">5572</h2></div>
+<div class="stat"><small>HAM</small><h2 style="color:#fbbf24">4825</h2></div>
+<div class="stat"><small>SPAM</small><h2 style="color:#f87171">747</h2></div>
+</div>
+<div class="main">
+<div class="card">
+<b>● Live Prediction - Your Model</b>
+<div id="chat" style="margin-top:12px;background:rgba(255,255,255,.06);padding:10px;border-radius:10px;font-size:13px">Try: "Congratulations! You won FREE iPhone"</div>
+<div id="res" class="result"></div>
+<div class="input"><textarea id="msg" rows="2" placeholder="Paste SMS here..."></textarea><button class="btn" onclick="go()">Analyze ➤</button></div>
+</div>
+<div class="card">
+<b>📊 Classification Report</b>
+<table style="width:100%;margin-top:10px;font-size:13px;color:#cbd5e1"><tr><th>ham</th><td>0.97</td><td>1.00</td><td>0.98</td></tr><tr><th>spam</th><td>1.00</td><td>0.78</td><td>0.88</td></tr></table>
+<p style="margin-top:10px;color:#94a3b8;font-size:12px">Model: spam_model.pkl + vectorizer.pkl<br>Your 97.04% wala model use ho raha hai</p>
+</div>
+</div>
+<script>
+async function go(){
+  let m=document.getElementById('msg').value; if(!m) return alert('Message likh');
+  document.getElementById('chat').innerHTML='<b>You:</b> '+m;
+  let r=document.getElementById('res'); r.className='result'; r.style.display='block'; r.innerText='Analyzing with your 97% model...';
+  let resp=await fetch('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:m})});
+  let d=await resp.json();
+  let isSpam = d.prediction==1 || String(d.prediction).toLowerCase().includes('spam');
+  r.className='result '+(isSpam?'spam':'ham');
+  r.innerHTML=(isSpam?'🚨 SPAM DETECTED':'✅ HAM - Safe')+`<br><small>Confidence: ${d.confidence}%</small>`;
+}
+</script>
+</body>
+</html>
